@@ -1,0 +1,1 @@
+vllm serve datalab-to/chandra-ocr-2   --served-model-name chandra  --gpu-memory-utilization 0.2 --max-model-len 32768 --port 8088
