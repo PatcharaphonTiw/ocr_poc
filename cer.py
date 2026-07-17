@@ -26,6 +26,9 @@ import sys
 import time
 
 from jiwer import cer as jiwer_cer
+from dotenv import load_dotenv
+
+load_dotenv() 
 
 from ocr import get_prompt, ocr_image, pdf_to_images
 
@@ -158,7 +161,7 @@ def parse_args():
     ap.add_argument("-o", "--output", default="cer_results.csv", help="Output CSV path")
     ap.add_argument(
         "--api-base",
-        default="http://10.10.10.187:4000/v1",
+        default=os.getenv("ROUTE_PREFIX", "http://localhost:80000/v1"),
         help="vLLM OpenAI-compatible base URL",
     )
     ap.add_argument("--model", default="chandra-ocr-2", help="served-model-name given to vllm serve")
@@ -170,7 +173,7 @@ def parse_args():
     )
     ap.add_argument("--dpi", type=int, default=200, help="Render DPI for PDF pages")
     ap.add_argument("--max-tokens", type=int, default=12384, help="Max output tokens per page")
-    ap.add_argument("--api-key", default="dummy", help="API key (vLLM ignores by default)")
+    ap.add_argument("--api-key", default=os.getenv("API_KEY", "dummy"), help="API key (vLLM ignores by default)")
     ap.add_argument("--timeout", type=int, default=300, help="Per-page request timeout (seconds)")
     ap.add_argument("--keys", default=None, help="Comma-separated list of index keys to process")
     ap.add_argument("--category", default=None, help="Only process entries with this category")

@@ -317,6 +317,7 @@ dependencies = [
     { name = "jiwer" },
     { name = "pymupdf" },
     { name = "pypdfium2" },
+    { name = "python-dotenv" },
     { name = "requests" },
 ]
 
@@ -326,6 +327,7 @@ requires-dist = [
     { name = "jiwer", specifier = ">=4.0.0" },
     { name = "pymupdf", specifier = ">=1.28.0" },
     { name = "pypdfium2", specifier = ">=5.12.0" },
+    { name = "python-dotenv", specifier = ">=1.2.2" },
     { name = "requests", specifier = ">=2.34.2" },
 ]
 
