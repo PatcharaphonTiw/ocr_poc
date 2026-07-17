@@ -32,7 +32,7 @@ load_dotenv()
 
 from ocr import get_prompt, ocr_image, pdf_to_images
 
-CSV_FIELDS = ["src", "name", "ground_truth", "OCR_parse", "Times parse", "Character Error Rate(CER)"]
+CSV_FIELDS = ["src", "name", "ground_truth", "OCR_parse", "Times parse", "Character Error Rate(CER)", "Error"]
 
 # Matches the "<!-- ===== page N ===== -->" separators ocr_document inserts
 # between pages; these are our own artifacts, not OCR content.
@@ -128,6 +128,26 @@ def load_processed_srcs(output_path: str) -> set:
                 if row.get("src"):
                     processed.add(row["src"])
     return processed
+
+
+def write_error_row(writer, f, src_rel: str, name: str, gt_text, message: str) -> None:
+    """Write a CSV row for a document that failed before/during OCR, then flush.
+
+    OCR_parse/Times parse/CER are left blank; `ground_truth` is filled in only
+    if it was already available at the point of failure.
+    """
+    writer.writerow(
+        {
+            "src": src_rel,
+            "name": name,
+            "ground_truth": gt_text or "",
+            "OCR_parse": "",
+            "Times parse": "",
+            "Character Error Rate(CER)": "",
+            "Error": message,
+        }
+    )
+    f.flush()
 
 
 def compute_cer(reference: str, hypothesis: str):
@@ -259,12 +279,16 @@ def main():
             name = entry.get("title", key)
             gt_text = load_ground_truth(gt_dir, key)
             if gt_text is None:
-                print(f"[warn] {key}: no ground-truth file found in {gt_dir}, skipping", file=sys.stderr)
+                message = f"no ground-truth file found in {gt_dir}"
+                print(f"[warn] {key}: {message}, skipping", file=sys.stderr)
+                write_error_row(writer, f, src_rel, name, None, message)
                 continue
 
             pdf_path = os.path.join(args.pdf_root, src_rel)
             if not os.path.exists(pdf_path):
-                print(f"[warn] {key}: PDF not found at {pdf_path}, skipping", file=sys.stderr)
+                message = f"PDF not found at {pdf_path}"
+                print(f"[warn] {key}: {message}, skipping", file=sys.stderr)
+                write_error_row(writer, f, src_rel, name, gt_text, message)
                 continue
 
             print(f"[info] Processing {key} ({name}) ...", file=sys.stderr)
@@ -282,6 +306,7 @@ def main():
                 )
             except Exception as e:
                 print(f"[error] {key}: OCR failed: {e}", file=sys.stderr)
+                write_error_row(writer, f, src_rel, name, gt_text, f"OCR failed: {e}")
                 continue
             elapsed = time.perf_counter() - start
 
@@ -295,6 +320,7 @@ def main():
                     "OCR_parse": ocr_text,
                     "Times parse": f"{elapsed:.3f}",
                     "Character Error Rate(CER)": f"{score:.6f}" if score is not None else "",
+                    "Error": "",
                 }
             )
             f.flush()
