@@ -294,12 +294,12 @@ def main():
                     "ground_truth": gt_text,
                     "OCR_parse": ocr_text,
                     "Times parse": f"{elapsed:.3f}",
-                    "CER": f"{score:.6f}" if score is not None else "",
+                    "Character Error Rate(CER)": f"{score:.6f}" if score is not None else "",
                 }
             )
             f.flush()
             print(
-                f"[done] {key}: CER={score if score is not None else 'N/A'} time={elapsed:.2f}s",
+                f"[done] {key}: Character Error Rate(CER)={score if score is not None else 'N/A'} time={elapsed:.2f}s",
                 file=sys.stderr,
             )
 
