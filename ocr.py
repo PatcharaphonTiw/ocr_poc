@@ -115,11 +115,11 @@ def main():
     ap.add_argument("-o", "--output", default="output.md", help="Output markdown file")
     ap.add_argument(
         "--api-base",
-        default="http://localhost:8000/v1",
+        default="http://10.10.10.187:4000/v1",
         help="vLLM OpenAI-compatible base URL",
     )
     ap.add_argument(
-        "--model", default="chandra", help="served-model-name given to vllm serve"
+        "--model", default="chandra-ocr-2", help="served-model-name given to vllm serve"
     )
     ap.add_argument(
         "--prompt-type",
